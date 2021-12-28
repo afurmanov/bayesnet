@@ -37,7 +37,14 @@ net = Bayesnet.define do
     end
 ```
 
-Above, for every given combination of `Coffee, Sleep Hours` the conditional distribution is specified.
+Above, must be read as:
+someone could be observed having morning coffee in 70% of all cases and when that person has a morning coffee after sleeping 8 hours, chances to find her in
+  - `:good` mood - 80%
+  - `:moderate` mood - 10%
+  - `:bad` mood - 10%
+  
+i.e. `[0.8, 0.1, 0.1]` is a conditional distribution.
+
 Given the model above the following queries could be executed:
 
 #### Given sleep time is six hours and mood is good, what chances cup of coffee has been consumed?
