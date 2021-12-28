@@ -42,17 +42,17 @@ Given the model above the following queries could be executed:
 
 #### Given sleep time is six hours and mood is good, what chances cup of coffee has been consumed?
 ```
-model.chances({coffee: :yes}, evidence: {mood: :good, sleep_hours: :six}) # 0.757
+net.chances({coffee: :yes}, evidence: {mood: :good, sleep_hours: :six}) # 0.757
 ```
 
 #### Given sleep time is six hours and mood is good, what is the most likely value for a `:coffee` variable?
 ```
-model.most_likely_value(:coffee, evidence: {mood: :good, sleep_hours: :six}) # :yes
+net.most_likely_value(:coffee, evidence: {mood: :good, sleep_hours: :six}) # :yes
 ```
 
 #### A broader question than the two above: Given sleep time is six hours and mood is good, what is the distribution for a `:coffee` variable?
 ```
-model.distribution(over: [:coffee], evidence: {mood: :good, sleep_hours: :six}) # [:yes, 0.757], [:no, 0.243]
+net.distribution(over: [:coffee], evidence: {mood: :good, sleep_hours: :six}) # [:yes, 0.757], [:no, 0.243]
 ```
 
 The inference is based on summing over joint distribution, i.e. it is the simplest and
