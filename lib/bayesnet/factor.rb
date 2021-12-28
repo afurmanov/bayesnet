@@ -15,7 +15,7 @@ module Bayesnet
     # Specifies function values for args. Latest args is an function value, all previous are argument values
     def val(*args)
       args = args[0] if args.size == 1 && args[0].is_a?(Array)
-      @vals[args[..-2]] = args[-1]
+      @vals[args[0..-2]] = args[-1]
     end
 
     def var_names
@@ -52,7 +52,9 @@ module Bayesnet
     end
 
     def limit_by(evidence)
-      vars = @vars.except(*evidence.keys)
+      # todo: use Hash#except when Ruby 2.6 support no longer needed
+      evidence_keys_set = evidence.keys.to_set
+      vars = @vars.reject { |k, _| evidence_keys_set.include?(k) }
 
       evidence_vals = evidence.values
       indices = evidence.keys.map { |k| index_by_var_name[k] }
