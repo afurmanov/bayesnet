@@ -20,14 +20,16 @@ module Bayesnet
     end
 
     def distribution(over: [], evidence: {})
-      limited = joint_distribution.limit_by(evidence)
-      limited.reduce(over)
+      joint_distribution
+        .reduce_to(evidence)
+        .marginalize(over)
+        .normalize
     end
 
     # This is MAP query, i.e. Maximum a Posteriory
     def most_likely_value(var_name, evidence:)
       posterior_distribution = distribution(over: [var_name], evidence: evidence)
-      mode = posterior_distribution.args(var_name).zip(posterior_distribution.values).max_by(&:last)
+      mode = posterior_distribution.contextes(var_name).zip(posterior_distribution.values).max_by(&:last)
       mode.first.first
     end
 
@@ -47,15 +49,15 @@ module Bayesnet
 
       factor = Factor.new
       @nodes.each do |node_name, node|
-        factor.var node_name => node.values
+        factor.scope node_name => node.values
       end
 
-      factor.args(*var_names).each do |args|
-        val_by_name = var_names.zip(args).to_h
+      factor.contextes(*var_names).each do |context|
+        val_by_name = var_names.zip(context).to_h
         val = nodes.values.reduce(1.0) do |prob, node|
           prob * node.factor[val_by_name]
         end
-        factor.val args + [val]
+        factor.val context + [val]
       end
       @joint_distribution = factor.normalize
     end
