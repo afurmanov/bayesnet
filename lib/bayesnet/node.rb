@@ -16,7 +16,7 @@ module Bayesnet
         @values = hash_or_array.keys
         node = self
         @factor = Factor.build do
-          var node.name => node.values
+          scope node.name => node.values
           hash_or_array.each do |value, probability|
             val [value, probability]
           end
@@ -26,9 +26,9 @@ module Bayesnet
         @values = hash_or_array
         node = self
         @factor = Factor.build do
-          var node.name => node.values
+          scope node.name => node.values
           node.parent_nodes.each do |parent_node_name, parent_node|
-            var parent_node_name => parent_node.values
+            scope parent_node_name => parent_node.values
           end
         end
         instance_eval(&block)

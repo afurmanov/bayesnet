@@ -5,8 +5,8 @@ require "test_helper"
 class FactorTest < Minitest::Test
   def factor
     Bayesnet::Factor.build do
-      var weather: [:sunny, :cloudy]
-      var mood: [:bad, :good]
+      scope weather: [:sunny, :cloudy]
+      scope mood: [:bad, :good]
       val :sunny, :bad, 0.1
       val :sunny, :good, 0.9
       val :cloudy, :bad, 0.7
@@ -22,25 +22,25 @@ class FactorTest < Minitest::Test
     assert_equal([:weather, :mood], factor.var_names)
   end
 
-  def test_args_for_a_signle_variable
-    assert_equal([[:bad], [:good]], factor.args(:mood))
-    assert_equal([[:sunny], [:cloudy]], factor.args(:weather))
+  def test_contextes_for_a_signle_variable
+    assert_equal([[:bad], [:good]], factor.contextes(:mood))
+    assert_equal([[:sunny], [:cloudy]], factor.contextes(:weather))
   end
 
-  def test_args_for_multiple_variables
+  def test_contextes_for_multiple_variables
     assert_equal([[:bad, :sunny],
       [:bad, :cloudy],
       [:good, :sunny],
       [:good, :cloudy]],
-      factor.args(:mood, :weather))
+      factor.contextes(:mood, :weather))
   end
 
-  def test_args_for_multiple_variables_orderless
+  def test_contextes_for_multiple_variables_orderless
     assert_equal([[:sunny, :bad],
       [:sunny, :good],
       [:cloudy, :bad],
       [:cloudy, :good]],
-      factor.args(:weather, :mood))
+      factor.contextes(:weather, :mood))
   end
 
   def test_acts_as_multinomial_map
@@ -61,12 +61,12 @@ class FactorTest < Minitest::Test
     assert_equal([:weather, :mood], normalized.var_names)
   end
 
-  def test_normalized_has_same_args
+  def test_normalized_has_same_contextes
     assert_equal([[:bad, :sunny],
       [:bad, :cloudy],
       [:good, :sunny],
       [:good, :cloudy]],
-      normalized.args(:mood, :weather))
+      normalized.contextes(:mood, :weather))
   end
 
   def test_normalized_sum_of_values_is_1
@@ -78,11 +78,11 @@ class FactorTest < Minitest::Test
     assert_equal(1.0, normalized.values.sum)
   end
 
-  def test_limit_by
+  def test_reduce_to
     evidence = {weather: :sunny}
-    limited = factor.limit_by(evidence)
+    limited = factor.reduce_to(evidence)
     assert_equal([:mood], limited.var_names)
-    assert_equal([[:bad], [:good]], limited.args(:mood))
+    assert_equal([[:bad], [:good]], limited.contextes(:mood))
     assert_equal(0.1, limited[:bad])
     assert_equal(0.9, limited[:good])
   end
