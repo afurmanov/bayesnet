@@ -1,0 +1,250 @@
+require "treetop"
+
+module Bayesnet
+  module Parsers
+    grammar Bif
+      include Bayesnet::Parsers::Builder
+
+      rule CompilationUnit
+        SEP NetworkDeclaration list:( VariableDeclaration / ProbabilityDeclaration )* SEP {
+        def nodes
+          list.elements.select { |e| e.respond_to?(:node) }.map(&:node)
+        end
+
+        def cpts
+          list.elements.select { |e| e.respond_to?(:cpt) }.map(&:cpt)
+        end
+        }
+        
+      end
+
+      rule NetworkDeclaration
+        SEP NETWORK SEP WORD SEP NetworkContent SEP
+      end
+
+      rule NetworkContent
+        SEP "{" ( SEP Property  )* SEP "}" SEP
+      end
+
+      rule VariableDeclaration
+        SEP VARIABLE SEP probabilityVariableName SEP variableContent SEP {
+        def node
+          values = variableContent.values
+          [probabilityVariableName.text_value.to_sym, values]
+        end
+        }
+      end
+
+      rule variableContent
+        SEP "{"  list:(SEP Property / variableDiscrete )* SEP "}" SEP {
+        def values
+          list.elements.select { |e| e.respond_to?(:values) }.map(&:values).flatten
+        end
+        }
+      end
+
+      rule variableDiscrete
+        SEP VARIABLETYPE SEP DISCRETE SEP "[" SEP DECIMAL_LITERAL SEP "]" SEP "{" SEP variableValuesList SEP "}" SEP ";" SEP {
+        def values
+          variableValuesList.values
+        end
+        }
+      end
+
+      rule variableValuesList
+        SEP probabilityVariableValue list:( SEP probabilityVariableValue )* {
+        def values
+          [probabilityVariableValue.value] + list.elements.map { |e| e.elements[1].value }.flatten
+        end
+        }
+      end
+
+      rule probabilityVariableValue
+        VALUE {
+        def value
+          self.text_value.to_sym
+        end
+        }
+      end
+
+      rule ProbabilityDeclaration
+        SEP PROBABILITY SEP probabilityVariablesList SEP probabilityContent SEP {
+        def cpt
+          { variable: probabilityVariablesList.value,
+            parents: probabilityVariablesList.parents,
+            cpt: probabilityContent.cpt}
+        end
+        }
+      end
+
+      rule probabilityVariablesList
+        SEP "(" SEP probabilityVariableName list:( SEP probabilityVariableName )* SEP ")" SEP {
+        def value
+          probabilityVariableName.value
+        end
+
+        def parents
+           list.elements.map { |e| e.elements[1].value }.flatten
+        end
+        }
+      end
+
+      rule probabilityVariableName
+        WORD {
+        def value
+          self.text_value.to_sym
+        end
+        }
+      end
+
+      rule probabilityContent
+        SEP "{" SEP list:( SEP Property / ProbabilityDefaultEntry / ProbabilityEntry  / ProbabilityTable  )* SEP "}" SEP {
+        def cpt
+           distributions = list.elements.select { |e| e.respond_to?(:given) }.map do |e|
+             {given: e.given,
+              distribution: e.distribution}
+           end
+           table = list.elements.select { |e| e.respond_to?(:table) }.map do |e|
+            {table: e.table}
+           end
+           if distributions.empty? && !table.empty?
+             return table.first
+           elsif !distributions.empty? && table.empty?
+             return distributions
+           elsif distributions.empty? && table.empty?
+             raise "Either distributions or table must be provided"
+           else
+             raise "Both - distributions or table cannot be provided at the same time"
+           end
+        end
+        }
+      end
+
+      rule ProbabilityEntry
+        SEP probabilityValuesList SEP floatingPointList SEP ";" SEP {
+        def given
+          probabilityValuesList.values
+        end
+        def distribution
+          floatingPointList.values
+        end
+        }
+      end
+
+      rule probabilityValuesList
+        SEP "(" SEP probabilityVariableValue list:( SEP probabilityVariableValue  )*  SEP ")" {
+        def values
+          [probabilityVariableValue.value] + list.elements.map { |e| e.elements[1].value }
+        end
+        }
+      end
+
+      rule ProbabilityDefaultEntry
+        SEP floatingPointList SEP ";" SEP {
+        def values
+          floatingPointList.values
+        end
+        }
+      end
+
+      rule ProbabilityTable
+        SEP TABLEVALUE SEP floatingPointList SEP ";" SEP {
+        def table
+          floatingPointList.values
+        end
+        }
+      end
+
+      rule floatingPointList
+        SEP floatingPointToken  list:( SEP floatingPointToken )* {
+        def values
+          [floatingPointToken.value] + list.elements.map {|e| e.elements[1]}.select { |e| e.respond_to?(:value) }.map(&:value)
+        end
+        }
+      end
+
+      rule floatingPointToken
+        FLOATING_POINT_LITERAL {
+        def value
+          self.text_value.to_f
+        end
+        }
+      end
+
+      rule Property
+        PROPERTYSTRING
+      end
+
+      rule NETWORK
+        'network'
+      end
+
+      rule VARIABLE
+        'variable'
+      end
+
+      rule PROBABILITY
+        'probability'
+      end
+
+      rule PROPERTY
+        'property'
+      end
+
+      rule VARIABLETYPE
+        'type'
+      end
+
+      rule DISCRETE
+        'discrete'
+      end
+
+      rule DEFAULTVALUE
+        'default'
+      end
+
+      rule TABLEVALUE
+        'table'
+      end
+
+      rule WORD
+        LETTER (LETTER / DIGIT)*
+      end
+
+      rule LETTER
+        [a-zA-Z_-]
+      end
+
+      rule VALUE
+        [/<>=.+a-zA-Z_0-9-]+
+      end
+
+      rule DIGIT
+        [0-9]
+      end
+
+      rule DECIMAL_LITERAL
+        DIGIT DIGIT*
+      end
+
+      rule FLOATING_POINT_LITERAL
+        DIGIT+ '.' DIGIT* EXPONENT?
+        / '.' DIGIT+ EXPONENT?
+        / DIGIT+ EXPONENT
+      end
+
+      rule EXPONENT
+       [eE] [+-]? DIGIT+
+      end
+
+      rule PROPERTYSTRING
+        PROPERTY .* ';'
+      end
+
+      rule SEP
+        [\r\n\t ,|]*
+      end
+
+    end
+  end
+end

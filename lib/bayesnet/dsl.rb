@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 require "bayesnet/graph"
 
 module Bayesnet
+  # Bayesnet::DSL.define ...
   module DSL
     def define(&block)
       graph = Graph.new

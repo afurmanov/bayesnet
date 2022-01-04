@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
 require "bayesnet/node"
 
 module Bayesnet
+  # Acyclic graph
   class Graph
     attr_reader :nodes
 
@@ -14,13 +17,16 @@ module Bayesnet
 
     def node(name, parents: [], &block)
       raise Error, "DSL error, #node requires a &block" unless block
-      node = Node.new(name, @nodes.slice(*parents))
+
+      node = Node.new(name, parents)
       node.instance_eval(&block)
       @nodes[name] = node
     end
 
     def resolve_factors
-      @nodes.values.each(&:resolve_factor)
+      @nodes.values.each do |node|
+        node.resolve_factor(@nodes.slice(*node.parent_nodes))
+      end
     end
 
     def distribution(over: [], evidence: {})
@@ -64,6 +70,10 @@ module Bayesnet
         factor.val context + [val]
       end
       @joint_distribution = factor.normalize
+    end
+
+    def parameters
+      nodes.values.map(&:parameters).sum
     end
   end
 end

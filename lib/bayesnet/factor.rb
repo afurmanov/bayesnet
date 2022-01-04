@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Bayesnet
   # Factor if a function of sevaral variables (A, B, ...) each defined on values from finite set
   class Factor
@@ -14,9 +16,7 @@ module Bayesnet
 
     # Specifies value for a scope context. Value is the last element in `context_and_val`
     def val(*context_and_val)
-      if context_and_val.size == 1 && context_and_val[0].is_a?(Array)
-        context_and_val = context_and_val[0]
-      end
+      context_and_val = context_and_val[0] if context_and_val.size == 1 && context_and_val[0].is_a?(Array)
       @vals[context_and_val[0..-2]] = context_and_val[-1]
     end
 
@@ -26,10 +26,10 @@ module Bayesnet
 
     def [](*context)
       key = if context.size == 1 && context[0].is_a?(Hash)
-        context[0].slice(*var_names).values
-      else
-        context
-      end
+              context[0].slice(*var_names).values
+            else
+              context
+            end
       @vals[key]
     end
 
@@ -39,6 +39,7 @@ module Bayesnet
 
     def contextes(*var_names)
       return [] if var_names.empty?
+
       @scope[var_names[0]].product(*var_names[1..].map { |var_name| @scope[var_name] })
     end
 
@@ -49,21 +50,27 @@ module Bayesnet
     def normalize
       vals = @vals.clone
       norm_factor = vals.map(&:last).sum * 1.0
-      vals.each { |k, v| vals[k] /= norm_factor }
+      vals.each { |k, _v| vals[k] /= norm_factor }
       self.class.new(@scope.clone, vals)
     end
 
     def reduce_to(context)
-      # todo: use Hash#except when Ruby 2.6 support no longer needed
+      # TODO: use Hash#except when Ruby 2.6 support no longer needed
       context_keys_set = context.keys.to_set
       scope = @scope.reject { |k, _| context_keys_set.include?(k) }
 
       context_vals = context.values
       indices = context.keys.map { |k| index_by_var_name[k] }
-      vals = @vals.select { |k, v| indices.map { |i| k[i] } == context_vals }
-      vals.transform_keys! { |k| k - context_vals }
+      vals = @vals.select { |k, _v| indices.map { |i| k[i] } == context_vals }
+      vals.transform_keys! { |k| delete_by_indices(k, indices) }
 
       self.class.new(scope, vals)
+    end
+
+    def delete_by_indices(array, indices)
+      result = array.dup
+      indices.map { |i| result[i] = nil }
+      result.compact
     end
 
     # groups by `var_names` having same context and sum out values.
@@ -71,7 +78,7 @@ module Bayesnet
       scope = @scope.slice(*var_names)
 
       indices = scope.keys.map { |k| index_by_var_name[k] }
-      vals = @vals.group_by { |context, val| indices.map { |i| context[i] } }
+      vals = @vals.group_by { |context, _val| indices.map { |i| context[i] } }
       vals.transform_values! { |v| v.map(&:last).sum }
 
       self.class.new(scope, vals)
@@ -86,8 +93,9 @@ module Bayesnet
 
     def index_by_var_name
       return @index_by_var_name if @index_by_var_name
+
       @index_by_var_name = {}
-      @scope.each_with_index { |(k, v), i| @index_by_var_name[k] = i }
+      @scope.each_with_index { |(k, _v), i| @index_by_var_name[k] = i }
       @index_by_var_name
     end
   end

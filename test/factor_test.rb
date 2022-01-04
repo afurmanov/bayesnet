@@ -5,8 +5,8 @@ require "test_helper"
 class FactorTest < Minitest::Test
   def factor
     Bayesnet::Factor.build do
-      scope weather: [:sunny, :cloudy]
-      scope mood: [:bad, :good]
+      scope weather: %i[sunny cloudy]
+      scope mood: %i[bad good]
       val :sunny, :bad, 0.1
       val :sunny, :good, 0.9
       val :cloudy, :bad, 0.7
@@ -19,7 +19,7 @@ class FactorTest < Minitest::Test
   end
 
   def test_var_names_order_is_the_same_as_declaration_order
-    assert_equal([:weather, :mood], factor.var_names)
+    assert_equal(%i[weather mood], factor.var_names)
   end
 
   def test_contextes_for_a_signle_variable
@@ -28,29 +28,29 @@ class FactorTest < Minitest::Test
   end
 
   def test_contextes_for_multiple_variables
-    assert_equal([[:bad, :sunny],
-      [:bad, :cloudy],
-      [:good, :sunny],
-      [:good, :cloudy]],
+    assert_equal([%i[bad sunny],
+      %i[bad cloudy],
+      %i[good sunny],
+      %i[good cloudy]],
       factor.contextes(:mood, :weather))
   end
 
   def test_contextes_for_multiple_variables_orderless
-    assert_equal([[:sunny, :bad],
-      [:sunny, :good],
-      [:cloudy, :bad],
-      [:cloudy, :good]],
+    assert_equal([%i[sunny bad],
+      %i[sunny good],
+      %i[cloudy bad],
+      %i[cloudy good]],
       factor.contextes(:weather, :mood))
   end
 
-  def test_acts_as_multinomial_map
+  def test_acts_as_multinominal_map
     assert_equal(0.1, factor[:sunny, :bad])
     assert_equal(0.9, factor[:sunny, :good])
     assert_equal(0.7, factor[:cloudy, :bad])
     assert_equal(0.3, factor[:cloudy, :good])
   end
 
-  def test_acts_as_multinomial_map_order_is_important
+  def test_acts_as_multinominal_map_order_is_important
     assert_nil(factor[:bad, :sunny])
     assert_nil(factor[:good, :sunny])
     assert_nil(factor[:bad, :cloudy])
@@ -58,14 +58,14 @@ class FactorTest < Minitest::Test
   end
 
   def test_normalized_has_same_var_names
-    assert_equal([:weather, :mood], normalized.var_names)
+    assert_equal(%i[weather mood], normalized.var_names)
   end
 
   def test_normalized_has_same_contextes
-    assert_equal([[:bad, :sunny],
-      [:bad, :cloudy],
-      [:good, :sunny],
-      [:good, :cloudy]],
+    assert_equal([%i[bad sunny],
+      %i[bad cloudy],
+      %i[good sunny],
+      %i[good cloudy]],
       normalized.contextes(:mood, :weather))
   end
 
