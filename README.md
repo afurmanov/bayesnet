@@ -66,12 +66,14 @@ The inference is based on summing over joint distribution, i.e. it is the simple
 most expensive way to calculate it. No optimization is implemented in this version; the code
 is more a proof of API.
 
+### [Another example](https://afurmanov.com/reducing-anxiety-with-bayesian-network) of using this gem
+
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'bayesnet'
+em 'bayesnet'
 ```
 
 And then execute:
