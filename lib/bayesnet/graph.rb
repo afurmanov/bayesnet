@@ -19,6 +19,10 @@ module Bayesnet
       @nodes[name] = node
     end
 
+    def resolve_factors
+      @nodes.values.each(&:resolve_factor)
+    end
+
     def distribution(over: [], evidence: {})
       joint_distribution
         .reduce_to(evidence)

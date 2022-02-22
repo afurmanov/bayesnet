@@ -23,7 +23,15 @@ module Bayesnet
         end
       when Array
         raise Error, "DSL error, #values requires a &block when first argument is an Array" unless block
+
         @values = hash_or_array
+        @factor = block
+      end
+    end
+
+    def resolve_factor
+      if @factor.is_a?(Proc)
+        proc = @factor
         node = self
         @factor = Factor.build do
           scope node.name => node.values
@@ -31,7 +39,7 @@ module Bayesnet
             scope parent_node_name => parent_node.values
           end
         end
-        instance_eval(&block)
+        instance_eval(&proc)
       end
     end
 
