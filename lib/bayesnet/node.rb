@@ -23,13 +23,13 @@ module Bayesnet
         end
       when Array
         raise Error, "DSL error, #values requires a &block when first argument is an Array" unless block
-
         @values = hash_or_array
         @factor = block
       end
     end
 
-    def resolve_factor
+    def resolve_factor(parent_nodes)
+      @parent_nodes = parent_nodes
       if @factor.is_a?(Proc)
         proc = @factor
         node = self
@@ -45,6 +45,10 @@ module Bayesnet
 
     def distributions(&block)
       instance_eval(&block)
+    end
+
+    def parameters
+      (values.size - 1) * parent_nodes.values.reduce(1) { |mul, n| mul * n.values.size }
     end
 
     def as(distribution, given:)

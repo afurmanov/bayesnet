@@ -34,7 +34,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "m", "~> 1.5.0"
   spec.add_development_dependency "minitest", "~> 5.0"
   spec.add_development_dependency "pry-byebug", "~> 3.9.0"
-  spec.add_development_dependency "standard", "~> 1.3"
 
   # For more information and examples about making a new gem, checkout our
   # guide at: https://bundler.io/guides/creating_gem.html

@@ -9,6 +9,9 @@ Rake::TestTask.new(:test) do |t|
   t.test_files = FileList["test/**/*_test.rb"]
 end
 
-require "standard/rake"
+Rake::TestTask.new("regen-bif") do |t|
+  `rm ./lib/bayesnet/parsers/bif.rb`
+  `tt ./lib/bayesnet/parsers/bif.treetop`
+end
 
-task default: %i[test standard]
+task default: %i[test]
