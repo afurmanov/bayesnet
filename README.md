@@ -1,6 +1,7 @@
 # Bayesnet
 
-This gem provides an API for building a Bayesian network and executing some queries against it.
+This gem provides an DSL for constructing Bayesian networks and let to execute basic inference queries. It is also capable of parsing .BIF format ([The Interchange Format for Bayesian Networks](https://www.cs.washington.edu/dm/vfml/appendixes/bif.htm)).
+
 
 ### Example:
 
