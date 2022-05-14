@@ -79,11 +79,45 @@ class FactorTest < Minitest::Test
   end
 
   def test_reduce_to
-    evidence = {weather: :sunny}
+    evidence = { weather: :sunny }
     limited = factor.reduce_to(evidence)
     assert_equal([:mood], limited.var_names)
     assert_equal([[:bad], [:good]], limited.contextes(:mood))
     assert_equal(0.1, limited[:bad])
     assert_equal(0.9, limited[:good])
+  end
+
+  def test_reduce_to_non_overlapping_context
+    evidence = { aliens: :martians }
+    limited = factor.reduce_to(evidence)
+    assert_equal(factor.var_names, limited.var_names)
+    assert_equal(factor.contextes, limited.contextes)
+    assert_equal(factor[:sunny, :bad], limited[:sunny, :bad])
+    assert_equal(factor[:sunny, :good], limited[:sunny, :good])
+    assert_equal(factor[:cloudy, :bad], limited[:cloudy, :bad])
+    assert_equal(factor[:cloudy, :good], limited[:cloudy, :good])
+  end
+
+  def test_product
+    rain_factor = Bayesnet::Factor.build do
+      scope weather: %i[sunny cloudy]
+      scope rain: %i[yes no]
+      val :sunny, :yes, 0.01
+      val :sunny, :no, 0.99
+      val :cloudy, :yes, 0.8
+      val :cloudy, :no, 0.2
+    end
+    product = factor * rain_factor
+    delta = 0.000001
+    assert_equal([:weather, :mood, :rain], product.var_names)
+    assert_in_delta(0.001, product[:sunny, :bad, :yes ], delta)
+    assert_in_delta(0.009, product[:sunny, :good, :yes], delta)
+    assert_in_delta(0.099, product[:sunny, :bad, :no], delta)
+    assert_in_delta(0.891, product[:sunny, :good, :no], delta)
+    assert_in_delta(0.56,  product[:cloudy, :bad, :yes], delta)
+    assert_in_delta(0.24,  product[:cloudy, :good, :yes], delta)
+    assert_in_delta(0.14,  product[:cloudy, :bad, :no], delta)
+    assert_in_delta(0.06,  product[:cloudy, :good, :no], delta)
+    product
   end
 end

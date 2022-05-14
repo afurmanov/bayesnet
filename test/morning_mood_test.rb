@@ -81,17 +81,52 @@ class MorningMoodTest < Minitest::Test
     distribution1 = morning_mood.distribution(over: [:coffee, :sleep_hours], evidence: {mood: :bad})
     distribution2 = morning_mood.distribution(over: [:sleep_hours, :coffee], evidence: {mood: :bad})
     assert_in_delta(0.098, distribution1[:yes, :six])
-    assert_in_delta(0.098, distribution2[:six, :yes])
+    assert_in_delta(0.098, distribution2[:yes, :six])
     assert_in_delta(0.294, distribution1[:yes, :seven])
-    assert_in_delta(0.294, distribution2[:seven, :yes])
+    assert_in_delta(0.294, distribution2[:yes, :seven])
     assert_in_delta(0.294, distribution1[:yes, :eight])
-    assert_in_delta(0.294, distribution2[:eight, :yes])
+    assert_in_delta(0.294, distribution2[:yes, :eight])
     assert_in_delta(0.063, distribution1[:no, :six])
-    assert_in_delta(0.063, distribution2[:six, :no])
+    assert_in_delta(0.063, distribution2[:no, :six])
     assert_in_delta(0.126, distribution1[:no, :seven])
-    assert_in_delta(0.126, distribution2[:seven, :no])
+    assert_in_delta(0.126, distribution2[:no, :seven])
     assert_in_delta(0.126, distribution1[:no, :eight])
-    assert_in_delta(0.126, distribution2[:eight, :no])
+    assert_in_delta(0.126, distribution2[:no, :eight])
+  end
+
+  def test_distribution_over_two_vars_using_different_algorithms
+    over = [:coffee, :sleep_hours]
+    evidence = { mood: :bad }
+    distribution1 = morning_mood.distribution(over: over,
+                                              evidence: evidence,
+                                              algorithm: :brute_force)
+
+    distribution2 = morning_mood.distribution(over: over,
+                                              evidence: evidence,
+                                              algorithm: :variables_elimination)
+
+    assert_in_delta(distribution1[:yes, :six], distribution2[:yes, :six])
+    assert_in_delta(distribution1[:yes, :seven], distribution2[:yes, :seven])
+    assert_in_delta(distribution1[:yes, :eight], distribution2[:yes, :eight])
+    assert_in_delta(distribution1[:no, :six], distribution2[:no, :six])
+    assert_in_delta(distribution1[:no, :seven], distribution2[:no, :seven])
+    assert_in_delta(distribution1[:no, :eight], distribution2[:no, :eight])
+  end
+
+  def test_distribution_over_one_var_using_different_algorithms
+    over = [:sleep_hours]
+    evidence = { mood: :bad }
+    distribution1 = morning_mood.distribution(over: over,
+                                              evidence: evidence,
+                                              algorithm: :brute_force)
+
+    distribution2 = morning_mood.distribution(over: over,
+                                              evidence: evidence,
+                                              algorithm: :variables_elimination)
+
+    assert_in_delta(distribution1[:six], distribution2[:six])
+    assert_in_delta(distribution1[:seven], distribution2[:seven])
+    assert_in_delta(distribution1[:eight], distribution2[:eight])
   end
 
   def test_chances
