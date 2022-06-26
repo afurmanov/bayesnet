@@ -63,9 +63,9 @@ net.most_likely_value(:coffee, evidence: {mood: :good, sleep_hours: :six}) # :ye
 net.distribution(over: [:coffee], evidence: {mood: :good, sleep_hours: :six}) # [:yes, 0.757], [:no, 0.243]
 ```
 
-The inference is based on summing over joint distribution, i.e. it is the simplest and
-most expensive way to calculate it. No optimization is implemented in this version; the code
-is more a proof of API.
+Inference algorithm finds distribution for variables listed in `:over` parameter and there are two available methods to achieve that (See `Bayesnet::Graph#distribution`'s ' `:algorithm` parameter):
+1. Using [variable elimination algorithm](https://en.wikipedia.org/wiki/Variable_elimination), this is way much faster and used by default
+2. Brute force, i.e. building complete join distribution, it works only for small Baysian networks and used mostly for testing
 
 ### [Another example](https://afurmanov.com/reducing-anxiety-with-bayesian-network) of using this gem
 
