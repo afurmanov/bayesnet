@@ -44,6 +44,32 @@ class BuilderTest < Minitest::Test
     assert_in_delta(0.7287, asia_net.chances({ either: :yes }, evidence: evidence))
   end
 
+  # Compared against https://www.bayesserver.com/examples/networks/asia
+  def test_asia_network_evidences
+    input = load_fixture('asia.bif')
+    asia_net = build(input)
+
+    dist = asia_net.distribution(over: [:asia], evidence: {})
+    assert_in_delta(dist[:yes], 0.01)
+    assert_in_delta(dist[:no], 0.99)
+
+    dist = asia_net.distribution(over: [:tub], evidence: {asia: :yes})
+    assert_in_delta(dist[:yes], 0.05)
+    assert_in_delta(dist[:no], 0.95)
+
+    dist = asia_net.distribution(over: [:asia], evidence: {tub: :yes})
+    assert_in_delta(dist[:yes], 0.0481)
+    assert_in_delta(dist[:no], 0.9519)
+
+    dist = asia_net.distribution(over: [:asia], evidence: {dysp: :yes})
+    assert_in_delta(dist[:yes], 0.0103)
+    assert_in_delta(dist[:no], 0.9897)
+
+    dist = asia_net.distribution(over: [:tub], evidence: {dysp: :yes, xray: :yes})
+    assert_in_delta(dist[:yes], 0.1139)
+    assert_in_delta(dist[:no], 0.8861)
+  end
+
   # small
   def test_cancer_network_nodes
     input = load_fixture('cancer.bif')
@@ -70,15 +96,6 @@ class BuilderTest < Minitest::Test
     assert_equal(27, insurance_net.nodes.size)
     assert_equal(%i[SocioEcon Age], insurance_net.nodes[:GoodStudent].parent_nodes.keys)
     # assert_equal(52, insurance_net.parameters)
-    # it still running very long time > 5 mins
-    # binding.pry
-    # dist = insurance_net.distribution(over: [:AirBag],
-    #                            evidence: { Age: :Senior,
-    #                                        VehicleYear: :Older,
-    #                                        Antilock: :True,
-    #                                        HomeBase: :Suburb })
-    # dist
-    # binding.pry
   end
 
   # medium
@@ -95,6 +112,5 @@ class BuilderTest < Minitest::Test
     input = load_fixture('alarm.bif')
     alarm_net = build(input)
     refute_nil(alarm_net)
-    # alarm_net.joint_distribution, # this fails, OOM
   end
 end

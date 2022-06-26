@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    bayesnet (0.6.0)
+    bayesnet (0.7.0)
 
 GEM
   remote: https://rubygems.org/
@@ -21,6 +21,9 @@ GEM
       byebug (~> 11.0)
       pry (~> 0.13.0)
     rake (13.0.6)
+    rexml (3.2.5)
+    ruby-graphviz (1.2.5)
+      rexml
     treetop (1.6.11)
       polyglot (~> 0.3)
 
@@ -34,6 +37,7 @@ DEPENDENCIES
   minitest (~> 5.0)
   pry-byebug (~> 3.9.0)
   rake (~> 13.0)
+  ruby-graphviz
   treetop (~> 1.6)
 
 BUNDLED WITH
