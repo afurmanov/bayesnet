@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+## [0.6.0] - 2022-06-26
+- Using variables elimination algorithm to build a distribution
+
 ## [0.5.0] - 2022-02-26
 
 - Constructing networks out of the `.BIF` ([Interchange Format for Bayesian Networks](https://www.cs.washington.edu/dm/vfml/appendixes/bif.htm)) files.
@@ -8,7 +11,7 @@
 
 ## [0.0.3] - 2021-12-29
 
-- Fixing terminoloty used in Factor class
+- Fixing terminology used in Factor class
 
 ## [0.0.2] - 2021-12-28
 

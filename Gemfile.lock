@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    bayesnet (0.1.0)
+    bayesnet (0.6.0)
 
 GEM
   remote: https://rubygems.org/

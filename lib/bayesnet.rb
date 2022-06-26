@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 require "set"
+require "logger"
 
 # net
+require_relative "bayesnet/logging"
 require_relative "bayesnet/dsl"
 require_relative "bayesnet/error"
 require_relative "bayesnet/factor"

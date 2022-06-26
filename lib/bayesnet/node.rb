@@ -6,8 +6,10 @@ module Bayesnet
       @name = name
       @parent_nodes = parent_nodes
       @values = []
+      @factor = Factor.new
     end
 
+    # +++ Node DSL +++
     def values(hash_or_array = nil, &block)
       case hash_or_array
       when NilClass
@@ -28,6 +30,21 @@ module Bayesnet
       end
     end
 
+    def distributions(&block)
+      instance_eval(&block)
+    end
+    # --- Node DSL ---
+
+    def parameters
+      (values.size - 1) * parent_nodes.values.reduce(1) { |mul, n| mul * n.values.size }
+    end
+
+    def as(distribution, given:)
+      @values.zip(distribution).each do |value, probability|
+        @factor.val [value] + given + [probability]
+      end
+    end
+
     def resolve_factor(parent_nodes)
       @parent_nodes = parent_nodes
       if @factor.is_a?(Proc)
@@ -43,18 +60,5 @@ module Bayesnet
       end
     end
 
-    def distributions(&block)
-      instance_eval(&block)
-    end
-
-    def parameters
-      (values.size - 1) * parent_nodes.values.reduce(1) { |mul, n| mul * n.values.size }
-    end
-
-    def as(distribution, given:)
-      @values.zip(distribution).each do |value, probability|
-        @factor.val [value] + given + [probability]
-      end
-    end
   end
 end

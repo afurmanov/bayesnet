@@ -70,7 +70,15 @@ class BuilderTest < Minitest::Test
     assert_equal(27, insurance_net.nodes.size)
     assert_equal(%i[SocioEcon Age], insurance_net.nodes[:GoodStudent].parent_nodes.keys)
     # assert_equal(52, insurance_net.parameters)
-    # insurance_net.joint_distribution # this fails, OOM
+    # it still running very long time > 5 mins
+    # binding.pry
+    # dist = insurance_net.distribution(over: [:AirBag],
+    #                            evidence: { Age: :Senior,
+    #                                        VehicleYear: :Older,
+    #                                        Antilock: :True,
+    #                                        HomeBase: :Suburb })
+    # dist
+    # binding.pry
   end
 
   # medium
