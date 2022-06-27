@@ -2,7 +2,7 @@
 
 module Bayesnet
   def self.logger
-    @logger ||= Logger.new(STDOUT).tap { |l| l.level = :debug }
+    @logger ||= Logger.new(STDOUT).tap { |l| l.level = :info }
   end
 
   module Logging
