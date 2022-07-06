@@ -13,4 +13,5 @@ group :development, :test do
   gem "minitest", "~> 5.0"
   gem "pry-byebug", "~> 3.9.0"
   gem "ruby-graphviz"
+  gem "benchmark"
 end

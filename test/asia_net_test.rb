@@ -89,4 +89,5 @@ class AsiaNetTest < Minitest::Test
     assert_in_delta(0.6819, asia_net.chances({ bronc: :yes }, evidence: evidence))
     assert_in_delta(0.7287, asia_net.chances({ either: :yes }, evidence: evidence))
   end
+
 end

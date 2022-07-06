@@ -1,0 +1,29 @@
+---
+title: "Alarm-network.rmd"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(bnlearn)
+library(rbenchmark)
+library(microbenchmark)
+```
+
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+    
+BiocManager::install("Rgraphviz")    
+
+asia = read.bif("/Users/alex/i/bayesnet/test/fixtures/asia.bif")
+graphviz.plot(asia)
+fn <- cpquery(asia, (smoke == "yes"), (xray == "yes" & dysp == "yes"), method="ls")
+benchmark(fn)
+microbenchmark(fn)
+microbenchmark(cpquery(asia, (smoke == "yes"), (xray == "yes" & dysp == "yes"), method="ls"))
+# names(asia)
+
+
