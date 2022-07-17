@@ -3,17 +3,6 @@
 require 'test_helper'
 
 class ParserTest < Minitest::Test
-  def load_fixture(name)
-    File.read(File.expand_path("fixtures/#{name}", __dir__))
-  end
-
-  def parser
-    Bayesnet::Parsers::BifParser.new
-  end
-
-  def parse(input)
-    parser.parse(input)
-  end
 
   def test_network_declaration
     input = <<-INPUT
